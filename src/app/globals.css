@@ -45,7 +45,7 @@ input[type="number"] {
     --header-height: 8vh;
   }
 
-  .dark {
+  /* .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
@@ -70,5 +70,5 @@ input[type="number"] {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-  }
+  } */
 }

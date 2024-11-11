@@ -27,6 +27,7 @@ model User {
   policeOfficer    PoliceOfficer?
   userDocuments    UserDocuments?
   address          Address[]
+  EFIR             EFIR[]
 }
 
 model Image {
@@ -61,24 +62,25 @@ model UserDocuments {
 model Address {
   id              String            @id @default(cuid())
   userId          String?
-  type            AddressType?
+  type            AddressType       @default(CurrentAddress)
   country         String            @default("India")
   zone            Zone?
-  state           String  @default("")
-  city            String  @default("")
-  district        String  @default("")
-  postalCode      String  @default("")
+  state           String            @default("")
+  city            String            @default("")
+  district        String            @default("")
+  postalCode      String            @default("")
   street          String?
   landmark        String?
   address         String?
   houseNumber     String?
   policeStation   PoliceStation?
   TransferredFrom TransferHistory[] @relation("TransferredFrom")
-  user            User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   TransferHistory TransferHistory[] @relation("TransferredTo")
 
   Detective Detective[]
+  EFIR      EFIR?
 }
 
 enum Zone {
@@ -135,6 +137,8 @@ model PoliceOfficer {
   PsHead            PoliceStation?    @relation(name: "PsHead")
   assignedStation   PoliceStation?    @relation(fields: [assignedStationId], references: [id])
   assignedCases     CaseAssignment?   @relation(fields: [assignedCaseId], references: [id])
+  EFIR              EFIR?             @relation(fields: [eFIRId], references: [id])
+  eFIRId            String?
 }
 
 enum Rank {
@@ -203,6 +207,7 @@ model PoliceStation {
   SHO          PoliceOfficer?  @relation(name: "PsHead", fields: [SHOId], references: [userId])
   location     Address?        @relation(fields: [locationId], references: [id])
   officers     PoliceOfficer[]
+  EFIR         EFIR[]
 }
 
 model LicenseApplication {
@@ -232,7 +237,7 @@ model CaseAssignment {
   detectiveId String?
   caseType    CaseType
   caseStatus  CaseStatus      @default(Pending)
-  officer      PoliceOfficer[]
+  officer     PoliceOfficer[]
   detective   Detective?      @relation(fields: [detectiveId], references: [userId])
   assignedAt  DateTime        @default(now())
   CaseHistory CaseHistory[]
@@ -273,4 +278,52 @@ enum Role {
   Detective
   Administrator
   Board
+}
+
+enum OffenceType {
+  Murder
+  Rape
+  Robbery
+  Burglary
+  Kidnapping
+  Dowry_Death
+  Culpable_Homicide
+  Grievous_Hurt
+  Assault
+  Extortion
+  Theft
+  Arson
+  Corruption
+  Fraudulent_Cheque_Issuance
+  Human_Trafficking
+  Unlawful_Assembly
+  Criminal_Breach_of_Trust
+  Cheating
+}
+
+model Suspects {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  reason      String
+  EFIR        EFIR?   @relation(fields: [eFIRId], references: [id], onDelete: Cascade)
+  eFIRId      String?
+}
+
+model EFIR {
+  id                String          @id @default(cuid())
+  userId            String
+  addressId         String          @unique
+  incidentTime      DateTime
+  reportingTime     DateTime        @default(now())
+  victim            String
+  description       String
+  user              User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address           Address         @relation(fields: [addressId], references: [id])
+  offence           OffenceType
+  assignedStationId String
+  assignedStation   PoliceStation?  @relation(fields: [assignedStationId], references: [id], onDelete: Cascade)
+  assignedOfficers  PoliceOfficer[]
+  status            CaseStatus      @default(Open)
+  suspects          Suspects[]
 }

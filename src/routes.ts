@@ -8,7 +8,7 @@ export const publicRoutes = [
   "/public/*",
   "/images/*",
   "/about",
-  "/efir"
+  "/efir",
 ];
 
 /**

@@ -31,43 +31,32 @@ import { findNearestPoliceStation } from "@/action/citizen.action"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 
-const frameworks = [
-  { label: "English", value: "en" },
-  { label: "French", value: "fr" },
-  { label: "German", value: "de" },
-  { label: "Spanish", value: "es" },
-  { label: "Portuguese", value: "pt" },
-  { label: "Russian", value: "ru" },
-  { label: "Japanese", value: "ja" },
-  { label: "Korean", value: "ko" },
-  { label: "Chinese", value: "zh" },
-] as const
+import { searchAreas } from "@/constants"
+import axios from "axios"
 
 type props = {}
 
-
-function SearchByArea() {
+function SearchByArea({ area, setArea, value, setValue }: { area: "zone" | "city" | "state", setArea: any, value: string, setValue: any }) {
 
 
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
 
   return (
     <>
       <RadioGroup defaultValue="zone" className="flex items-center justify-start gap-4 mb-6">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2" onClick={() => setArea("zone")}>
           <RadioGroupItem value="zone" id="option-one" />
           <Label htmlFor="option-one">Zone</Label>
         </div>
-        <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2">
           <RadioGroupItem value="range" id="option-two" />
           <Label htmlFor="option-two">Range</Label>
-        </div>
-        <div className="flex items-center space-x-2">
+        </div> */}
+        <div className="flex items-center space-x-2" onClick={() => setArea("city")}>
           <RadioGroupItem value="city" id="option-three" />
           <Label htmlFor="option-three">City</Label>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2" onClick={() => setArea("state")}>
           <RadioGroupItem value="state" id="option-four" />
           <Label htmlFor="option-four">State</Label>
         </div>
@@ -80,33 +69,36 @@ function SearchByArea() {
             role="combobox"
             aria-expanded={open}
             className="w-[200px] justify-between"
+            onClick={() => setOpen(true)}
           >
             {value
-              ? frameworks.find((framework) => framework.value === value)?.label
+              // ? frameworks.find((framework) => framework.value === value)?.label
+              ? searchAreas[area].find(ar => ar == value)
               : "Select"}
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        { open && <PopoverContent className="w-[200px] p-0">
           <Command>
-            <CommandInput placeholder="Search framework..." className="h-9" />
+            <CommandInput placeholder="Search Area..." className="h-9" />
             <CommandList>
-              <CommandEmpty>No framework found.</CommandEmpty>
+              <CommandEmpty>No area found.</CommandEmpty>
               <CommandGroup>
-                {frameworks.map((framework) => (
+                {searchAreas[area].map((ar, index) => (
                   <CommandItem
-                    key={framework.value}
-                    value={framework.value}
+                    key={index}
+                    value={ar}
                     onSelect={(currentValue) => {
                       setValue(currentValue === value ? "" : currentValue)
+                      console.log("selected!")
                       setOpen(false)
                     }}
                   >
-                    {framework.label}
+                    {ar}
                     <CheckIcon
                       className={cn(
                         "ml-auto h-4 w-4",
-                        value === framework.value ? "opacity-100" : "opacity-0"
+                        value === ar ? "opacity-100" : "opacity-0"
                       )}
                     />
                   </CommandItem>
@@ -114,7 +106,7 @@ function SearchByArea() {
               </CommandGroup>
             </CommandList>
           </Command>
-        </PopoverContent>
+        </PopoverContent>}
       </Popover>
 
     </>
@@ -129,6 +121,8 @@ const Page = (props: props) => {
   const { toast } = useToast()
   const [pincode, setPincode] = useState("")
   const [loading, setLoading] = useState(false)
+  const [area, setArea] = useState<"city" | "state" | "zone">("zone")
+  const [location, setLocation] = useState("")
 
   const findNearestStation = async (pincode: string) => {
     try {
@@ -142,7 +136,7 @@ const Page = (props: props) => {
       if (station) router.push(`/policeStation?stationId=${station.id}`)
       else toast({
         title: "No Nearest Police Station Found",
-        description: "You can get the information of it as soon as tehy register to us"
+        description: "You can get the information of it as soon as they register to us"
       })
     } catch (err) {
       console.log(err)
@@ -170,10 +164,10 @@ const Page = (props: props) => {
           title="Know Your Officials"
           description="Get the details of the officials in your zone/range/city/state"
           content={
-            <SearchByArea />
+            <SearchByArea area={area} setArea={setArea} value={location} setValue={setLocation} />
           }
           footer={
-            <Button>Search</Button>
+            <Button onClick={() => router.push(`/officers?area=${area}&location=${location}`)}>Search</Button>
           }
         />
 
@@ -233,7 +227,7 @@ const Page = (props: props) => {
           description="search officials by their Name/Rank/Department/Badge Number"
           content={
             <>
-              <SearchByArea />
+              {/* <SearchByArea /> */}
             </>
           }
           footer={

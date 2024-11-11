@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge";
 
 type ContainerType = {
     children: any,
-    className: string
+    className?: string
 }
 
 export function Container(props: ContainerType) {

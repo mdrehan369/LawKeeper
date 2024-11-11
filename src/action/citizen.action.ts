@@ -26,7 +26,9 @@ export const getCurrentUser = async () => {
         role: "Citizen",
       },
       include: {
-        profilePhoto: true
+        profilePhoto: true,
+        userDocuments: true,
+        address: true
       }
     })
 

@@ -5,7 +5,9 @@ export type User = Prisma.UserGetPayload<{}> | null
 
 export type UserWithImage = Prisma.UserGetPayload<{
   include: {
-    profilePhoto: true
+    profilePhoto: true,
+    userDocuments: true,
+    address: true
   }
 }> | null
 

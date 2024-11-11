@@ -19,6 +19,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useStore } from "@/store/store";
 
 
 type NavElems = {
@@ -39,23 +40,8 @@ function HeaderElements({ elems }: any) {
 
 export function Header() {
 
-    const [user, setUser] = useState<UserWithImage | null | undefined>(null)
-    const [loader, setLoader] = useState<boolean>(true)
-    // const router = useRouter()
-
-    useEffect(() => {
-        ; (async () => {
-            try {
-                const response = await getCurrentUser()
-                console.log(response)
-                setUser(response)
-            } catch (err) {
-                console.log(err)
-            } finally {
-                setLoader(false)
-            }
-        })()
-    }, [])
+    const user = useStore(state => state.user)
+    const pathname = usePathname()
 
     const navElems: any = [
         {
@@ -91,8 +77,7 @@ export function Header() {
     }
 
     return (
-        !loader &&
-        <header className="w-full h-[--header-height] fixed backdrop-blur-sm top-0 left-0 flex items-center justify-between px-6 border-b-[0px] border-gray-200 z-10 md:fixed animate-appear-up">
+        <header className={`w-full h-[--header-height] fixed ${pathname == '/' ? 'backdrop-blur-sm border-0': 'bg-white border-b-[2px]'} top-0 left-0 flex items-center justify-between px-6 border-gray-200 z-10 md:fixed animate-appear-up`}>
             <div className="w-[20%]">
                 <Link href="/">
                     <Image

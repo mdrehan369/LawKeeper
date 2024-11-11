@@ -65,4 +65,25 @@ export const getStationByStationId = async (stationid: string) => {
     console.log(err)
     return null
   }
-} 
+}
+
+export const getStationsByCity = async (city: string) => {
+  try {
+    const stations = await prisma.policeStation.findMany({
+      where: {
+        location: {
+          city
+        }
+      },
+      select: {
+        id: true,
+        stationName: true
+      }
+    })
+
+    return stations
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+}
