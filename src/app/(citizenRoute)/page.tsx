@@ -33,6 +33,9 @@ import { useToast } from "@/components/ui/use-toast"
 
 import { searchAreas } from "@/constants"
 import axios from "axios"
+import { useStore } from "@/store/store"
+import { LicenseModal } from "@/components/LicenceModal"
+import { Address, Document } from "@/zod"
 
 type props = {}
 
@@ -120,9 +123,12 @@ const Page = (props: props) => {
   const router = useRouter()
   const { toast } = useToast()
   const [pincode, setPincode] = useState("")
+  const user = useStore(state => state.user)
   const [loading, setLoading] = useState(false)
   const [area, setArea] = useState<"city" | "state" | "zone">("zone")
   const [location, setLocation] = useState("")
+  const setLicenseModal = useStore(state => state.setLicenseModal)
+  const licenseModal = useStore(state => state.licenseModal)
 
   const findNearestStation = async (pincode: string) => {
     try {
@@ -145,6 +151,19 @@ const Page = (props: props) => {
     }
   }
 
+  const handleLicenseApply = async () => {
+    try {
+      console.log(user)
+      if(!user) return router.push("/auth/signin")
+      Document.parse(user?.userDocuments)
+      Address.parse(user?.address[0])
+      setLicenseModal()
+    } catch (error) {
+      console.log(error)
+      toast({ title: "Please fill the details first!", description: "Fill out the details of address and documents to proceed further", variant: "destructive" })
+    }
+  }
+
 
   return (
     <Container className="flex relative flex-col items-center justify-start gap-20 h-auto scroll-smooth">
@@ -154,7 +173,7 @@ const Page = (props: props) => {
 
       <div className="flex flex-col items-center justify-center gap-10 h-[100vh] md:w-[60%] w-full md:p-0 p-4 animate-appear-up">
         <h1 className="font-bold font-amsterdam italic text-2xl lg:text-6xl text-slate-900 leading-9 md:leading-[3rem] text-center">Law Keeper: Streamlining Law and Order for a Safer Future</h1>
-        <p className="text-gray-700 text-xl font-medium text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit ducimus at fugiat, animi laborum architecto eligendi exercitationem eos aliquid maxime! Similique nemo alias impedit. Architecto facilis magni iste eos consequatur at exercitationem.</p>
+        <p className="text-gray-700 text-xl font-medium text-center">Law Keeper is a pioneering digital platform designed to transform the way law and order are maintained by creating a seamless connection between citizens and law enforcement. Our goal is to streamline the legal and regulatory processes, making them more accessible, efficient, and transparent for everyone involved.</p>
         <Button className="" size={"lg"} onClick={() => scrollTo(0, 806)}>Find Help!</Button>
       </div>
 
@@ -204,13 +223,13 @@ const Page = (props: props) => {
             <p>A Police Unit for addressing offences against Children & Women</p>
           }
           footer={
-            <Button>Read More</Button>
+            <Button onClick={() => router.push("/women-child-organization")}>Read More</Button>
           }
         />
 
         <CardBuilder
           title="E-FIR"
-          description=""
+          description="File E-FIR online as soon as you want to report a case"
           content={
             <>
               <p>e-FIR facility available for unknown accused cases</p>
@@ -218,22 +237,27 @@ const Page = (props: props) => {
             </>
           }
           footer={
-            <Button>File An E-FIR</Button>
+            <Button onClick={() => router.push("efir")}>File An E-FIR</Button>
           }
         />
 
         <CardBuilder
-          title="Search Officials"
-          description="search officials by their Name/Rank/Department/Badge Number"
+          title="Apply for licences"
+          description="You can apply for different kinds of licences here"
           content={
             <>
               {/* <SearchByArea /> */}
+              <p>
+                Apply for Firearm License, Liquor Licence, Event And Entertainment License, Pet License, etc...
+              </p>
             </>
           }
           footer={
-            <Button>Search</Button>
+            <Button onClick={() => handleLicenseApply()}>Apply</Button>
           }
         />
+
+        { licenseModal && <LicenseModal /> }
 
       </div>
 

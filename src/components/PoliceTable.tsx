@@ -14,7 +14,7 @@ import { convertIsoToReadableDate } from "@/utils/dateConverter";
 export const PoliceTable = ({
   officers,
 }: {
-  officers: Array<Prisma.PoliceOfficerGetPayload<{include: { user: true }}>>;
+  officers: Array<Prisma.PoliceOfficerGetPayload<{include: { user: true, assignedStation: true }}>>;
 }) => {
   return (
       <Table>
@@ -40,6 +40,7 @@ export const PoliceTable = ({
               <TableCell>{officer.rank}</TableCell>
               <TableCell>
                 {officer.department.map((dept) => `${dept}, `)}
+                {/* {officer.assignedStation?.stationName} */}
               </TableCell>
             </TableRow>
           ))}

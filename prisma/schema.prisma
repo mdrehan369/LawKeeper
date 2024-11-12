@@ -8,26 +8,27 @@ datasource db {
 }
 
 model User {
-  id               String         @id @default(cuid())
-  password         String
-  fullName         String
-  email            String?        @unique
-  emailVerified    DateTime?
-  phoneNumber      String         @unique
-  dateOfBirth      DateTime?
-  registrationDate DateTime       @default(now())
-  lastLogin        DateTime?
-  gender           Gender
-  role             Role           @default(Citizen)
-  administrator    Administrator?
-  board            Board?
-  citizen          Citizen?
-  detective        Detective?
-  profilePhoto     Image?
-  policeOfficer    PoliceOfficer?
-  userDocuments    UserDocuments?
-  address          Address[]
-  EFIR             EFIR[]
+  id                 String               @id @default(cuid())
+  password           String
+  fullName           String
+  email              String?              @unique
+  emailVerified      DateTime?
+  phoneNumber        String               @unique
+  dateOfBirth        DateTime?
+  registrationDate   DateTime             @default(now())
+  lastLogin          DateTime?
+  gender             Gender
+  role               Role                 @default(Citizen)
+  administrator      Administrator?
+  board              Board?
+  citizen            Citizen?
+  detective          Detective?
+  profilePhoto       Image?
+  policeOfficer      PoliceOfficer?
+  userDocuments      UserDocuments?
+  address            Address[]
+  EFIR               EFIR[]
+  LicenseApplication LicenseApplication[]
 }
 
 model Image {
@@ -62,7 +63,7 @@ model UserDocuments {
 model Address {
   id              String            @id @default(cuid())
   userId          String?
-  type            AddressType       @default(CurrentAddress)
+  type            AddressType?      @default(CurrentAddress)
   country         String            @default("India")
   zone            Zone?
   state           String            @default("")
@@ -114,31 +115,31 @@ enum BoardType {
 }
 
 model Citizen {
-  userId                  String               @id @unique
-  user                    User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  licenseApplications     LicenseApplication[]
+  userId                  String      @id @unique
+  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   complaints              Complaint[]
   notificationPreferences String?
 }
 
 model PoliceOfficer {
-  userId            String            @id @unique
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  badgeNumber       String?           @unique
-  assignedCaseId    String?
-  assignedStationId String?
-  recruiterId       String?
-  joiningDate       DateTime          @default(now())
-  recruitedBy       Board?            @relation(fields: [recruiterId], references: [userId])
-  rank              Rank?
-  caseHistory       CaseHistory[]
-  transferHistory   TransferHistory[]
-  department        Department[]
-  PsHead            PoliceStation?    @relation(name: "PsHead")
-  assignedStation   PoliceStation?    @relation(fields: [assignedStationId], references: [id])
-  assignedCases     CaseAssignment?   @relation(fields: [assignedCaseId], references: [id])
-  EFIR              EFIR?             @relation(fields: [eFIRId], references: [id])
-  eFIRId            String?
+  userId             String               @id @unique
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeNumber        String?              @unique
+  assignedCaseId     String?
+  assignedStationId  String?
+  recruiterId        String?
+  joiningDate        DateTime             @default(now())
+  recruitedBy        Board?               @relation(fields: [recruiterId], references: [userId])
+  rank               Rank?
+  caseHistory        CaseHistory[]
+  transferHistory    TransferHistory[]
+  department         Department[]
+  PsHead             PoliceStation?       @relation(name: "PsHead")
+  assignedStation    PoliceStation?       @relation(fields: [assignedStationId], references: [id])
+  assignedCases      CaseAssignment?      @relation(fields: [assignedCaseId], references: [id])
+  EFIR               EFIR?                @relation(fields: [eFIRId], references: [id])
+  eFIRId             String?
+  LicenseApplication LicenseApplication[]
 }
 
 enum Rank {
@@ -196,28 +197,55 @@ model Administrator {
 }
 
 model PoliceStation {
-  id           String          @id @default(cuid())
-  stationName  String
-  stationImage Image?
-  stationMail  String?
-  stationPhone String?
-  locationId   String?         @unique
-  departments  String[]
-  SHOId        String?         @unique
-  SHO          PoliceOfficer?  @relation(name: "PsHead", fields: [SHOId], references: [userId])
-  location     Address?        @relation(fields: [locationId], references: [id])
-  officers     PoliceOfficer[]
-  EFIR         EFIR[]
+  id                 String               @id @default(cuid())
+  stationName        String
+  stationImage       Image?
+  stationMail        String?
+  stationPhone       String?
+  locationId         String?              @unique
+  departments        String[]
+  SHOId              String?              @unique
+  SHO                PoliceOfficer?       @relation(name: "PsHead", fields: [SHOId], references: [userId])
+  location           Address?             @relation(fields: [locationId], references: [id])
+  officers           PoliceOfficer[]
+  EFIR               EFIR[]
+  LicenseApplication LicenseApplication[]
+}
+
+enum LicenseType {
+  Firearm
+  Driving
+  Liquor
+  Private_Security
+  Event_Entertainment
+  Pet
+  Import_Export
+  Knife_Blade
+  Protest
+  Hunting
+  Restricted_Area
+}
+
+enum LicenseStatus {
+  Pending
+  Reviewing
+  Issued
 }
 
 model LicenseApplication {
-  id         String    @id @default(cuid())
-  citizenId  String
-  citizen    Citizen   @relation(fields: [citizenId], references: [userId])
-  type       String
-  status     String
-  appliedAt  DateTime  @default(now())
-  approvedAt DateTime?
+  id                  String         @id @default(cuid())
+  userId              String
+  user                User           @relation(fields: [userId], references: [id])
+  type                LicenseType
+  status              LicenseStatus  @default(Pending)
+  reason              String
+  appliedAt           DateTime       @default(now())
+  approved            Boolean        @default(false)
+  assignedStationId   String?
+  assignedStation     PoliceStation?  @relation(fields: [assignedStationId], references: [id])
+  approvedBy          PoliceOfficer? @relation(fields: [policeOfficerUserId], references: [userId])
+  approvedAt          DateTime?
+  policeOfficerUserId String?
 }
 
 model Complaint {

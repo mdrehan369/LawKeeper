@@ -118,6 +118,16 @@ export const POST = asyncHandler(async (req: NextRequest) => {
         }
     })
 
-    return CustomResponse(200, "Updated")
+    const user = await prisma.user.findFirst({
+        where: {
+            id: decodedToken.id
+        },
+        include: {
+            address: true,
+            userDocuments: true
+        }
+    })
+
+    return CustomResponse(200, "Updated", user)
 
 })

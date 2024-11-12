@@ -3,6 +3,7 @@
 import { auth, UserPayload, verifyAuth } from "@/auth";
 import prisma from "@/prisma";
 import { User, UserWithImage } from "@/types/user.types";
+import { LicenseType } from "@prisma/client";
 import { cookies } from "next/headers";
 
 export async function getUser() {
@@ -82,6 +83,32 @@ export const findNearestPoliceStation = async (pincode: string) => {
 
   } catch (err) {
     console.log(err)
+    return null
+  }
+}
+
+
+export const submitLicenseApplication = async ({ assignedStationId, licenseType, reason, userId }: { assignedStationId: string, licenseType: LicenseType, reason: string, userId: string }) => {
+  try {
+    await prisma.licenseApplication.create({
+      data: {
+        user: {
+          connect: {
+            id: userId
+          }
+        },
+        type: licenseType,
+        reason,
+        assignedStation: {
+          connect: {
+            id: assignedStationId
+          }
+        }
+      }
+    })
+    return true
+  } catch (error) {
+    console.log(error)
     return null
   }
 }

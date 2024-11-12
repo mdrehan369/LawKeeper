@@ -145,7 +145,7 @@ export default function Efir(props: Props) {
 
   useEffect(() => {
     (async () => {
-      if (user?.address?.[0].city) return;
+      // if (user?.address?.[0].city) return;
       const stns = await getStationsByCity(
         user?.address?.[0].city || form.watch("address.city") || ""
       );

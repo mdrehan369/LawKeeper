@@ -315,3 +315,18 @@ export const cognizable_offenses: Array<{ offense: string, section: string }> = 
     section: "Section 420, IPC",
   },
 ];
+
+
+export const LicenseTypes = [
+  "Firearm",
+  "Driving",
+  "Liquor",
+  "Private_Security",
+  "Event_Entertainment",
+  "Pet",
+  "Import_Export",
+  "Knife_Blade",
+  "Protest",
+  "Hunting",
+  "Restricted_Area"
+]

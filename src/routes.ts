@@ -9,6 +9,7 @@ export const publicRoutes = [
   "/images/*",
   "/about",
   "/efir",
+  "/women-child-organization"
 ];
 
 /**
@@ -31,7 +32,8 @@ export const restrictedRoutes = [
 ]
 
 export const loggedUserRoutes = [
-  "/profile"
+  "/profile",
+  "/efir"
 ]
 
 /**

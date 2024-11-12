@@ -17,6 +17,8 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { CldUploadButton, CldImage } from 'next-cloudinary';
 import { deleteImage } from "@/action/cloudinary.action";
+import { Document } from "@/zod";
+import { useStore } from "@/store/store";
 
 
 const formSchema = z.object({
@@ -35,14 +37,15 @@ const formSchema = z.object({
         landmark: z.string().nullable().optional(),
         houseNumber: z.string().nullable().optional(),
         district: z.string().nullable().optional()
-    })),
-    userDocuments: z.object({
-        voterIdNumber: z.string().regex(/(^[A-Z]{3}[0-9]{7}$)|^$/, { message: "Invalid Voter ID Number" }).nullable(),
-        aadharCardNumber: z.string().regex(/(^[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}$)|^$/, { message: "Invalid Aadhar Card Number" }).nullable(),
-        panCardNumber: z.string().regex(/([A-Z]{5}[0-9]{4}[A-Z]{1})|^$/, { message: "Invalid Pan Card Number" }).nullable(),
-        passportNumber: z.string().regex(/(^[A-Z][1-9]\d\s?\d{4}[1-9]$)|^$/, { message: "Invalid Passport Number" }).nullable(),
-        drivingLicenceNumber: z.string().regex(/(^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$)|^$/, { message: "Invalid Driving License Number" }).nullable(),
-    })
+    })).optional(),
+    // userDocuments: z.object({
+    //     voterIdNumber: z.string().regex(/(^[A-Z]{3}[0-9]{7}$)|^$/, { message: "Invalid Voter ID Number" }).nullable(),
+    //     aadharCardNumber: z.string().regex(/(^[2-9]{1}[0-9]{3}\\s[0-9]{4}\\s[0-9]{4}$)|^$/, { message: "Invalid Aadhar Card Number" }).nullable(),
+    //     panCardNumber: z.string().regex(/([A-Z]{5}[0-9]{4}[A-Z]{1})|^$/, { message: "Invalid Pan Card Number" }).nullable(),
+    //     passportNumber: z.string().regex(/(^[A-Z][1-9]\d\s?\d{4}[1-9]$)|^$/, { message: "Invalid Passport Number" }).nullable(),
+    //     drivingLicenceNumber: z.string().regex(/(^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$)|^$/, { message: "Invalid Driving License Number" }).nullable(),
+    // })
+    userDocuments: Document.optional()
 })
 
 
@@ -140,6 +143,7 @@ export default function Profile() {
 
     const [loader, setLoader] = useState(true)
     const [isSameAddress, setIsSameAddress] = useState(false)
+    const login = useStore(state => state.login)
     const router = useRouter()
     const { toast } = useToast()
     const [imagesState, setImagesState] = useState<DocumentsPhotos>({
@@ -178,6 +182,8 @@ export default function Profile() {
 
             const response = await axios.post("/api/v1/users/citizens", formData)
             console.log(response)
+
+            login(response.data.data)
 
             router.push("/")
 
@@ -477,7 +483,7 @@ export default function Profile() {
                         />
                     </div>
 
-                    <Button className="w-32 h-10 text-sm font-semibold tracking-wide" disabled={!form.formState.isValid || form.formState.isSubmitting} type="submit">
+                    <Button className="w-32 h-10 text-sm font-semibold tracking-wide" disabled={form.formState.isSubmitting} type="submit">
                         {
                             form.formState.isSubmitting ?
                                 <Loading />
